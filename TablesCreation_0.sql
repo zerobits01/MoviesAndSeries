@@ -8,6 +8,7 @@ on		: MoviesAndSeries
 
 */
 
+use [MoviesAndSeries]
 
 -- Actor Table : 
 create Table actors(

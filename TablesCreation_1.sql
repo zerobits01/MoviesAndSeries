@@ -8,6 +8,7 @@ on		: MoviesAndSeries
 
 */
 
+use [MoviesAndSeries]
 
 -- Table MovieDirection(dir_id,mov_id)
 create table moviesdirection(
