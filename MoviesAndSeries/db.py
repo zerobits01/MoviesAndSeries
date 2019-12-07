@@ -17,9 +17,9 @@ class MyDataBase:
         # creating the connection on localhost with the dbname
         self.conn = pyodbc.connect('Driver={SQL Server};'
                                    'Server=localhost;'
-                                   'Database={dbname};'.format(dbname = dbname)
+                                   'Database=MoviesAndSeries;'
                                    'Trusted_Connection=yes;')
-        
+        self.cursor = self.conn.cursor()
         
 
         # predefined queries
@@ -30,18 +30,22 @@ class MyDataBase:
         self.DELETE_QUERY = 'DELETE from {tblname}'
 
     def getMovies(self):
-        cur = self.conn.cursor(self.SELECT_QUERY.format(tblname='movies'))
+        cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='movies'))
+        return cur
+
+    def getGenres(self):
+        cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='genres'))
         return cur
 
     def getSeries(self):
-        cur = self.conn.cursor(self.SELECT_QUERY.format(tblname='series'))
+        cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='series'))
         return cur
         
     def getActors(self):
-        cur = self.conn.cursor(self.SELECT_QUERY.format(tblname='actors'))
+        cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='actors'))
         return cur
         
-    def getWithGenre(self,genrename):
+    def getMoviesWithGenre(self,genrename):
         '''
             TODO : get all movies and series with genre of genrename
         '''
@@ -52,6 +56,13 @@ class MyDataBase:
                         on G.gen_id = M2.gen_id
             where G.gen_title like '{genre}'
         """
+        movies = self.cursor.execute(MQ.format(genre=genrename))
+        return movies
+
+    def getSeriesWithGenre(self,genrename):
+        '''
+            TODO : get all movies and series with genre of genrename
+        '''
         SQ = """ SELECT *
             from series M1 join seriesgen M2
                 on M1.ser_id = M2.ser_id
@@ -60,14 +71,10 @@ class MyDataBase:
             where G.gen_title like '{genre}' 
 
         """
-        res = []
-        cur = self.conn.cursor(MQ.format(genre=genrename))
-        res.append(cur)
-        cur = self.conn.cursor(SQ.format(genre=genrename))
-        res.append(cur)
-        return res
+        series = self.cursor.execute(SQ.format(genre=genrename))
+        return series
 
-    def getAllWithNameAndYear(self,fname,lname,year):
+    def getMoviesWithNameAndYear(self,fname,lname,year):
         '''
             TODO : returns all movies and series of the actor(fname,lname) and the year
         '''
@@ -78,6 +85,13 @@ class MyDataBase:
                         on MC.mov_id = M.mov_id
             where A.act_fname = '{fname}' and A.act_lname = '{lname}' and M.mov_year = '{year}'
         """
+        cur = self.cursor.execute(MQ.format(fname=fname,lname=lname,year=year))
+        return cur
+
+    def getSeriesWithNameAndYear(self,fname,lname,year):
+        '''
+            TODO : returns all movies and series of the actor(fname,lname) and the year
+        '''
         SQ = """ SELECT *
             from actors A join seriescast SC
                 on A.act_id = SC.act_id
@@ -85,24 +99,21 @@ class MyDataBase:
                         on SC.ser_id = S.ser_id
             where A.act_fname = '{fname}' and A.act_lname = '{lname}' and S.ser_year = '{year}'
         """
-        res = []
-        cur = self.conn.cursor(MQ.format(fname=fname,lname=lname,year=year))
-        res.append(cur)
-        cur = self.conn.cursor(SQ.format(fname=fname,lname=lname,year=year))
-        res.append(cur)
-        return res
+        cur = self.cursor.execute(SQ.format(fname=fname,lname=lname,year=year))
+        return cur
+
 
     def adminAddNewGenre(self,genre):
         '''
             insertion query adding new genre
         '''
         GQ = """ INSERT INTO genres(gen_title)
-            values({gen_title})
+            values('{gen_title}')
         """
-        cur = self.conn.cursor(GQ.format(gen_title=genre))
+        cur = self.cursor.execute(GQ.format(gen_title=genre))
         return cur
 
-    def getListOfUnacceptedComments(self):
+    def getListOfUnacceptedCommentsMovies(self):
         '''
             return all the unchecked comments
                 if accept delete and add to new table
@@ -113,17 +124,23 @@ class MyDataBase:
                 on M1.mov_id = M2.mov_id
             where M1.accepted = 0
         """
+        cur = self.cursor.execute(MQ)
+        return cur
+
+
+    def getListOfUnacceptedCommentsSeries(self):
+        '''
+            return all the unchecked comments
+                if accept delete and add to new table
+                else delete that
+        '''
         SQ = """ SELECT *
             from seriesrate S1 join series S2
                 on S1.ser_id = S2.ser_id
             where S1.accepted = 0
         """
-        res = []
-        cur = self.conn.cursor(MQ)
-        res.append(cur)
-        cur = self.conn.cursor(SQ)
-        res.append(cur)
-        return res
+        cur = self.cursor.execute(SQ)
+        return cur
 
     def acceptComment(self, sermov, revid, id):
         ''' 
@@ -136,14 +153,14 @@ class MyDataBase:
                 set accepted = 1
                 where rev_id = {revid} and ser_id = {serid} 
             """
-            cur = self.conn.cursor(SQ.format(revid=revid,serid=id))
+            cur = self.cursor.execute(SQ.format(revid=revid,serid=id))
             res.append(cur)
         elif sermov == 'M'  : 
             MQ = """ UPDATE moviesrate
                 set accepted = 1
                 where mov_id = {movid} and rev_id = {revid}
             """
-            cur = self.conn.cursor(MQ.format(movid=id,revid=revid))
+            cur = self.cursor.execute(MQ.format(movid=id,revid=revid))
             res.append(cur)
 
         return res
@@ -161,13 +178,13 @@ class MyDataBase:
             SQ = """ INSERT into seriesrate(rev_id,ser_id,rate,comment)
                         values({revid},{serid},{rate},'{comment}')
             """
-            cur = self.conn.cursor(SQ.format(revid=revid,serid=id,rate=rate,comment=comment))
+            cur = self.cursor.execute(SQ.format(revid=revid,serid=id,rate=rate,comment=comment))
             res.append(cur)
         elif sermov == 'M'  : 
             MQ = """ INSERT into moviesrate(rev_id,mov_id,rate,comment)
                         values({revid},{movid},{rate},'{comment}')
             """
-            cur = self.conn.cursor(MQ.format(movid=id,revid=revid,rate=rate,comment=comment))
+            cur = self.cursor.execute(MQ.format(movid=id,revid=revid,rate=rate,comment=comment))
             res.append(cur)
         return res
 
@@ -204,7 +221,7 @@ class MyDataBase:
             where YEAR(TM.mov_year) = '{year}' and TM.mov_year = TS.ser_year
                 and TM.mov_act = TS.ser_act
         """
-        res = self.conn.cursor(Query.format(year=year))
+        res = self.cursor.execute(Query.format(year=year))
         return res
 
 
@@ -245,9 +262,9 @@ class MyDataBase:
             where A.act_fname = '{fname}' and A.act_lname = '{lname}' and S.ser_year = '{year}'
         """
         res = []
-        cur = self.conn.cursor(MQ.format(fname=fname,lname=lname,year=year))
+        cur = self.cursor.execute(MQ.format(fname=fname,lname=lname,year=year))
         res.append(cur)
-        cur = self.conn.cursor(SQ.format(fname=fname,lname=lname,year=year))
+        cur = self.cursor.execute(SQ.format(fname=fname,lname=lname,year=year))
         res.append(cur)
         return res
 
@@ -261,13 +278,13 @@ class MyDataBase:
             returns : a list of tuples which is the answer of the query execution
         '''
         if tablename is None:
-            cursor = self.conn.cursor(rawquery)
+            cursor = self.cursor.execute(rawquery)
         else :
-            cursor = self.conn.cursor(rawquery.format(tblname = tablename))
+            cursor = self.cursor.execute(rawquery.format(tblname = tablename))
         
         return cursor
     
 '''
     TODO : bacon number
-    Niloufar TODO : Most and Last, Two Common actors
+    Niloufar TODO : Most and Least, Two Common actors
 '''
