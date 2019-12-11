@@ -10,7 +10,7 @@ class MyDataBase:
         This is a class for connecting to your SQL Server DataBase
     '''
 
-    def __init__(self, dbname):
+    def __init__(self):
         '''
             dbname : input argument string name of your database
         '''
@@ -225,15 +225,48 @@ class MyDataBase:
         return res
 
 
-    def baconNumber(self):
-        '''
-            TODO : finding the bacon number of the actor id
-                the actor himself is zero
-                    with one common movies one
-                        actors played with the one number are two
-                            and so on.
-        '''
-        pass
+    def baconNumberMovies(self,act_id,bacon_no):
+        Query = """ select distinct M2.act_id
+            from moviescast M1,moviescast M2
+            where M1.mov_id = M2.mov_id 
+                and M1.act_id != M2.act_id
+                    and M1.act_id = {act_id}
+        """
+        bacons = []
+        allids = set()
+        bacons.append([act_id])
+        allids.add(act_id)
+        for i in range(0,bacon_no):
+            bacons.append([])
+            for act_id in bacons[i]:
+                for rec in self.cursor.execute(Query.format(act_id=act_id)) :
+                    if rec.act_id not in allids :
+                        bacons[i+1].append(rec.act_id)
+                        allids.add(rec.act_id)
+        print(bacons)
+        return bacons
+
+
+    def baconNumberSeries(self,act_id,bacon_no):
+        Query = """ select distinct M2.act_id
+            from seriescast M1,seriescast M2
+            where M1.ser_id = M2.ser_id 
+                and M1.act_id != M2.act_id
+                    and M1.act_id = {act_id}
+        """
+        bacons = []
+        allids = set()
+        bacons.append([act_id])
+        allids.add(act_id)
+        for i in range(0,bacon_no):
+            bacons.append([])
+            for act_id in bacons[i]:
+                for rec in self.cursor.execute(Query.format(act_id=act_id)) :
+                    if rec.act_id not in allids :
+                        bacons[i+1].append(rec.act_id)
+                        allids.add(rec.act_id)
+        print(bacons)
+        return bacons
 
     # with niloufar : 
     def findM_And_L(self):
@@ -288,3 +321,7 @@ class MyDataBase:
     TODO : bacon number
     Niloufar TODO : Most and Least, Two Common actors
 '''
+
+mydb = MyDataBase()
+mydb.baconNumberMovies(42,3)
+mydb.baconNumberSeries(1,3)

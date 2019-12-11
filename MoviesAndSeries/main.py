@@ -4,7 +4,7 @@
 '''
 from flask import Flask, jsonify, request
 from db import MyDataBase
-db = MyDataBase("MoviesAndSeries")
+db = MyDataBase()
 
 app = Flask(__name__)
 
@@ -47,11 +47,22 @@ def returnGenres():
 
 
 
-@app.route('/bacon/<number>', methods=['GET'])
-def bacon(number):
-    return jsonify({
-        'res' : str(request.json) + ' ' + str(number)
-    })
+@app.route('/actid/<act_id>/bacon/<number>/sermov/<sermov>', methods=['GET'])
+def bacon(number,act_id,sermov):
+    if sermov = 'M' :
+        bacons = db.baconNumberMovies(act_id,number)
+        return jsonify({
+            'bacons' : bacons
+        })
+    elif sermov = 'S' :
+        bacons = db.baconNumberSeries(act_id,number)
+        return jsonify({
+            'bacons' : bacons
+        })
+    else :
+        return jsonify({
+            'err' : "not acceptable data "
+        })
 
 @app.route("/genre/<genre>",  methods=['GET'])
 def returnAllWithGenre(genre):
