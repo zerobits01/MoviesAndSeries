@@ -4,9 +4,12 @@
 '''
 from flask import Flask, jsonify, request
 from db import MyDataBase
+from flask_cors import CORS
 db = MyDataBase()
 
 app = Flask(__name__)
+
+CORS(app)
 
 # return the data in tables
 @app.route('/movies', methods=['GET'])
@@ -49,12 +52,12 @@ def returnGenres():
 
 @app.route('/actid/<act_id>/bacon/<number>/sermov/<sermov>', methods=['GET'])
 def bacon(number,act_id,sermov):
-    if sermov = 'M' :
+    if sermov == 'M' :
         bacons = db.baconNumberMovies(act_id,number)
         return jsonify({
             'bacons' : bacons
         })
-    elif sermov = 'S' :
+    elif sermov == 'S' :
         bacons = db.baconNumberSeries(act_id,number)
         return jsonify({
             'bacons' : bacons
@@ -220,4 +223,4 @@ def twoCommon():
 
 
 if __name__ == "__main__" :
-    app.run()
+    app.run(host="0.0.0.0")
