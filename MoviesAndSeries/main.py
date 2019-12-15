@@ -1,8 +1,10 @@
 '''
     a flask app to connect it to database
         of movies and series sql-server
+    it is really easy to use flask apps for rendering statics and
+        templates. we can use it beside other apps
 '''
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from db import MyDataBase
 from flask_cors import CORS
 db = MyDataBase()
@@ -10,6 +12,16 @@ db = MyDataBase()
 app = Flask(__name__)
 
 CORS(app)
+
+
+@app.route('/' , methods=['GET'])
+def render_users():
+    return render_template('users.html')
+
+@app.route('/admin' , methods=['GET'])
+def render_admin():
+    return render_template('admin.html')
+
 
 # return the data in tables
 @app.route('/movies', methods=['GET'])

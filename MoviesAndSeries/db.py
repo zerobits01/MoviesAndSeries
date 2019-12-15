@@ -54,9 +54,9 @@ class MyDataBase:
                 on M1.mov_id = M2.mov_id
                     join genres G
                         on G.gen_id = M2.gen_id
-            where G.gen_title like '{genre}'
+            where G.gen_title like '{genre}'  or G.gen_title like '{genre1}'
         """
-        movies = self.cursor.execute(MQ.format(genre=genrename))
+        movies = self.cursor.execute(MQ.format(genre=genrename, genre1=genrename.capitalize()))
         return movies
 
     def getSeriesWithGenre(self,genrename):
@@ -68,10 +68,10 @@ class MyDataBase:
                 on M1.ser_id = M2.ser_id
                     join genres G
                         on G.gen_id = M2.gen_id
-            where G.gen_title like '{genre}' 
+            where G.gen_title like '{genre}' or G.gen_title like '{genre1}' 
 
         """
-        series = self.cursor.execute(SQ.format(genre=genrename))
+        series = self.cursor.execute(SQ.format(genre=genrename,genre1=genrename.capitalize()))
         return series
 
     def getMoviesWithNameAndYear(self,fname,lname,year):
@@ -322,6 +322,6 @@ class MyDataBase:
     Niloufar TODO : Most and Least, Two Common actors
 '''
 
-mydb = MyDataBase()
-mydb.baconNumberMovies(42,3)
-mydb.baconNumberSeries(1,3)
+# mydb = MyDataBase()
+# mydb.baconNumberMovies(42,3)
+# mydb.baconNumberSeries(1,3)
