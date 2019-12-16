@@ -83,9 +83,9 @@ class MyDataBase:
                 on A.act_id = MC.act_id
                     join movies M
                         on MC.mov_id = M.mov_id
-            where A.act_fname = '{fname}' and A.act_lname = '{lname}' and M.mov_year = '{year}'
+            where A.act_fname = '{fname}' and A.act_lname = '{lname}' and YEAR(M.mov_year) = '{year}'
         """
-        cur = self.cursor.execute(MQ.format(fname=fname,lname=lname,year=year))
+        cur = self.cursor.execute(MQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
         return cur
 
     def getSeriesWithNameAndYear(self,fname,lname,year):
@@ -97,9 +97,9 @@ class MyDataBase:
                 on A.act_id = SC.act_id
                     join series S
                         on SC.ser_id = S.ser_id
-            where A.act_fname = '{fname}' and A.act_lname = '{lname}' and S.ser_year = '{year}'
+            where A.act_fname = '{fname}' and A.act_lname = '{lname}' and YEAR(S.ser_year) = '{year}'
         """
-        cur = self.cursor.execute(SQ.format(fname=fname,lname=lname,year=year))
+        cur = self.cursor.execute(SQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
         return cur
 
 
