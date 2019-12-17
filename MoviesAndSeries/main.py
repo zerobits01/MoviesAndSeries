@@ -206,6 +206,7 @@ def newGenre(genre):
 @app.route("/acception",  methods=['POST'])
 def acception():
     # serial or movie revid and the id of comments
+    # after acception we have to update movies reviewers and add the reviewer
     try:
         res = db.acceptComment(body['sermov'],body['revid'],body['id'])
         return jsonify({
@@ -222,16 +223,32 @@ def acception():
 
 @app.route("/findml",  methods=['GET'])
 def findml():
+    r = db.findM_And_L()
+    most_active = r[0][0].act_fname + ' ' + r[0][0].act_lname 
+    least_active= r[1][0].act_fname + ' ' + r[1][0].act_lname
     return jsonify({
-            'test' : request.json
-        })
+            'most_active' : most_active,
+            'least_active': least_active
+    })
 
 
 @app.route("/twocommon",  methods=['GET'])
 def twoCommon():
-    return jsonify({
-            'test' : request.json
+    try:
+        movies = db.getTwoCommonActors()
+        movies = [{
+        'mov_title' : r.mov_title,
+        } for r in movies]
+        return jsonify({
+                'movies' : movies,
+            })
+    except Exception as e:
+        return jsonify({
+                'msg' : "didn't save correctly!!!?!?!?",
+                'status' : 406,
+                'err' : str(e)
         })
+
 
 
 if __name__ == "__main__" :

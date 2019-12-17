@@ -152,6 +152,10 @@ class MyDataBase:
             SQ = """ UPDATE seriesrate
                 set accepted = 1
                 where rev_id = {revid} and ser_id = {serid} 
+
+                update series
+                    set reviewers = reviewers + 1
+                where ser_id = {serid}
             """
             cur = self.cursor.execute(SQ.format(revid=revid,serid=id))
             res.append(cur)
@@ -159,6 +163,9 @@ class MyDataBase:
             MQ = """ UPDATE moviesrate
                 set accepted = 1
                 where mov_id = {movid} and rev_id = {revid}
+                update movies
+                    set reviewers = reviewers + 1
+                where ser_id = {movid}
             """
             cur = self.cursor.execute(MQ.format(movid=id,revid=revid))
             res.append(cur)
@@ -273,33 +280,61 @@ class MyDataBase:
         '''
             returns most played actor and least played
         '''
-        pass
+        most_active = """with table1(act_id , mov_id , rol) as (									
+                (select * 
+                from moviescast) 
+                union 
+                (select * from seriescast)
+            )
+
+            select top(1) actors.act_fname , actors.act_lname
+            from table1 , actors
+            where table1.act_id = actors.act_id
+            group by actors.act_fname , actors.act_lname
+            order by COUNT(*) desc , actors.act_lname
+        """
     
+        least_active = """with table1(act_id , mov_id , rol) as (									
+                (select * 
+                from moviescast) 
+                union 
+                (select * from seriescast)
+            )
+
+            select top(1) actors.act_fname , actors.act_lname
+            from table1 , actors
+            where table1.act_id = actors.act_id
+            group by actors.act_fname , actors.act_lname
+            order by COUNT(*) , actors.act_lname
+        """
+        res = []
+        cur = self.cursor.execute(most_active)
+        res.append(cur.fetchall())
+        cur = self.cursor.execute(least_active)
+        res.append(cur.fetchall())
+        return res
+
     def getTwoCommonActors(self):
         '''
             TODO : return all movies and series that contai two or more common
                 actors
         '''
-        MQ = """ SELECT *
-            from actors A join moviescast MC
-                on A.act_id = MC.act_id
-                    join movies M
-                        on MC.mov_id = M.mov_id
-            where A.act_fname = '{fname}' and A.act_lname = '{lname}' and M.mov_year = '{year}'
+        MQ = """ with t(mov_id,mov_title,cnt_rows)
+            as(
+                select distinct m1.mov_id, m3.mov_title, count(*)
+                from (moviescast as m1 join moviescast as m2 
+                    on m1.mov_id = m2.mov_id)
+                        join movies as m3
+                            on m3.mov_id = m1.mov_id
+                where m1.act_id != m2.act_id 
+                group by m3.mov_title, m1.mov_id
+            )
+            select distinct mov_title
+            from t
+            where cnt_rows >= 2
         """
-        SQ = """ SELECT *
-            from actors A join seriescast SC
-                on A.act_id = SC.act_id
-                    join series S
-                        on SC.ser_id = S.ser_id
-            where A.act_fname = '{fname}' and A.act_lname = '{lname}' and S.ser_year = '{year}'
-        """
-        res = []
-        cur = self.cursor.execute(MQ.format(fname=fname,lname=lname,year=year))
-        res.append(cur)
-        cur = self.cursor.execute(SQ.format(fname=fname,lname=lname,year=year))
-        res.append(cur)
-        return res
+        cur = self.cursor.execute(MQ)
+        return cur
 
     def runQuery(self,rawquery,tablename):
         '''
