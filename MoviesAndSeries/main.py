@@ -147,7 +147,7 @@ def sameGenre(year):
 def rate():
     body = request.json
     try:
-        res = db.rateAndComment(body['sermov'],body['revid'],body['id'],body['rate'],body['comment'])
+        res = db.rateAndComment('S',body['rev_name'],body['id'],body['rate'],body['comment'])
         return jsonify({
                 'msg' : "rate saved correctly!!",
                 'res' : res

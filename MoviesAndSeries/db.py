@@ -19,7 +19,7 @@ class MyDataBase:
                                    'Server=localhost;'
                                    'Database=MoviesAndSeries;'
                                    'Trusted_Connection=yes;')
-
+        self.cursor = self.conn.cursor()
         # predefined queries
 
         # retrieving a table data
@@ -156,7 +156,7 @@ class MyDataBase:
         self.conn.commit()
         return cur
 
-=
+
     def getListOfUnacceptedCommentsSeries(self):
         '''
             return all the unchecked comments
@@ -203,7 +203,25 @@ class MyDataBase:
         self.conn.commit()
         return res
 
-    def rateAndComment(self,sermov,revid,id,rate,comment):
+    def addOrGetRev(self,rev_uname):
+        Q1 = """ SELECT * 
+            from reviewers
+            where rev_uname='{uname}'
+        """
+        cur = self.cursor.execute(Q1.format(uname=rev_uname))
+        user = cur.fetchone()
+        
+        Q2 = """ INSERT into reviewers
+            values('{uname}')
+        """
+        if user is None: 
+            cur = self.cursor.execute(Q2.format(uname=rev_uname))
+            cur = self.cursor.execute(Q1.format(uname=rev_uname))
+            user = cur.fetchone()
+        self.conn.commit()
+        return user[0]
+
+    def rateAndComment(self,sermov,rev_uname,id,rate,comment):
         '''
             m_or_s : 'm' 's' single char that shows if it is a movie or series
             id : id of the movie or series
@@ -211,7 +229,7 @@ class MyDataBase:
             adding this to new table temp till the admin accept it or reject
         '''
         res = []
-        self.cursor = self.conn.cursor()
+        revid = self.addOrGetRev(rev_uname)
         if sermov == 'S' :
             SQ = """ INSERT into seriesrate(rev_id,ser_id,rate,comment)
                         values({revid},{serid},{rate},'{comment}')
@@ -396,5 +414,6 @@ class MyDataBase:
 '''
 
 # mydb = MyDataBase()
+# print(mydb.addOrGetRev('name'))
 # mydb.baconNumberMovies(42,3)
 # mydb.baconNumberSeries(1,3)
