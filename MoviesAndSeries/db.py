@@ -19,8 +19,6 @@ class MyDataBase:
                                    'Server=localhost;'
                                    'Database=MoviesAndSeries;'
                                    'Trusted_Connection=yes;')
-        self.cursor = self.conn.cursor()
-        
 
         # predefined queries
 
@@ -30,25 +28,34 @@ class MyDataBase:
         self.DELETE_QUERY = 'DELETE from {tblname}'
 
     def getMovies(self):
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='movies'))
+        self.conn.commit()
         return cur
 
     def getGenres(self):
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='genres'))
+        self.conn.commit()
         return cur
 
     def getSeries(self):
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='series'))
+        self.conn.commit() 
         return cur
         
     def getActors(self):
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='actors'))
+        self.conn.commit()
         return cur
         
     def getMoviesWithGenre(self,genrename):
         '''
             TODO : get all movies and series with genre of genrename
         '''
+        self.cursor = self.conn.cursor()
         MQ = """ SELECT *
             from movies M1 join moviesgen M2
                 on M1.mov_id = M2.mov_id
@@ -57,12 +64,14 @@ class MyDataBase:
             where G.gen_title like '{genre}'  or G.gen_title like '{genre1}'
         """
         movies = self.cursor.execute(MQ.format(genre=genrename, genre1=genrename.capitalize()))
+        self.conn.commit()
         return movies
 
     def getSeriesWithGenre(self,genrename):
         '''
             TODO : get all movies and series with genre of genrename
         '''
+        self.cursor = self.conn.cursor()
         SQ = """ SELECT *
             from series M1 join seriesgen M2
                 on M1.ser_id = M2.ser_id
@@ -72,6 +81,7 @@ class MyDataBase:
 
         """
         series = self.cursor.execute(SQ.format(genre=genrename,genre1=genrename.capitalize()))
+        self.conn.commit()
         return series
 
     def getMoviesWithNameAndYear(self,fname,lname,year):
@@ -85,7 +95,9 @@ class MyDataBase:
                         on MC.mov_id = M.mov_id
             where A.act_fname = '{fname}' and A.act_lname = '{lname}' and YEAR(M.mov_year) = '{year}'
         """
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(MQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
+        self.conn.commit()
         return cur
 
     def getSeriesWithNameAndYear(self,fname,lname,year):
@@ -99,9 +111,10 @@ class MyDataBase:
                         on SC.ser_id = S.ser_id
             where A.act_fname = '{fname}' and A.act_lname = '{lname}' and YEAR(S.ser_year) = '{year}'
         """
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(SQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
+        self.conn.commit()
         return cur
-
 
     def adminAddNewGenre(self,genre):
         '''
@@ -110,7 +123,21 @@ class MyDataBase:
         GQ = """ INSERT INTO genres(gen_title)
             values('{gen_title}')
         """
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(GQ.format(gen_title=genre))
+        self.conn.commit()
+        return cur
+
+    def adminDeleteGenre(self,genre):
+        '''
+            insertion query adding new genre
+        '''
+        GQ = """ DELETE from genres
+            where gen_title='{genre1}' or gen_title='{genre2}'
+        """
+        self.cursor = self.conn.cursor()
+        cur = self.cursor.execute(GQ.format(genre1=genre,genre2=genre.capitalize()))
+        self.conn.commit()
         return cur
 
     def getListOfUnacceptedCommentsMovies(self):
@@ -124,10 +151,12 @@ class MyDataBase:
                 on M1.mov_id = M2.mov_id
             where M1.accepted = 0
         """
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(MQ)
+        self.conn.commit()
         return cur
 
-
+=
     def getListOfUnacceptedCommentsSeries(self):
         '''
             return all the unchecked comments
@@ -139,7 +168,9 @@ class MyDataBase:
                 on S1.ser_id = S2.ser_id
             where S1.accepted = 0
         """
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(SQ)
+        self.conn.commit()
         return cur
 
     def acceptComment(self, sermov, revid, id):
@@ -147,7 +178,7 @@ class MyDataBase:
             TODO : accept the comment
         '''
         res = []
-
+        self.cursor = self.conn.cursor()
         if sermov == 'S' :
             SQ = """ UPDATE seriesrate
                 set accepted = 1
@@ -169,7 +200,7 @@ class MyDataBase:
             """
             cur = self.cursor.execute(MQ.format(movid=id,revid=revid))
             res.append(cur)
-
+        self.conn.commit()
         return res
 
     def rateAndComment(self,sermov,revid,id,rate,comment):
@@ -180,7 +211,7 @@ class MyDataBase:
             adding this to new table temp till the admin accept it or reject
         '''
         res = []
-
+        self.cursor = self.conn.cursor()
         if sermov == 'S' :
             SQ = """ INSERT into seriesrate(rev_id,ser_id,rate,comment)
                         values({revid},{serid},{rate},'{comment}')
@@ -193,6 +224,7 @@ class MyDataBase:
             """
             cur = self.cursor.execute(MQ.format(movid=id,revid=revid,rate=rate,comment=comment))
             res.append(cur)
+        self.conn.commit()
         return res
 
     def getSameGenre_M_S_WithYear(self,year):
@@ -228,9 +260,10 @@ class MyDataBase:
             where YEAR(TM.mov_year) = '{year}' and TM.mov_year = TS.ser_year
                 and TM.mov_act = TS.ser_act
         """
+        self.cursor = self.conn.cursor()
         res = self.cursor.execute(Query.format(year=year))
+        self.conn.commit()
         return res
-
 
     def baconNumberMovies(self,act_id,bacon_no):
         Query = """ select distinct M2.act_id
@@ -239,6 +272,7 @@ class MyDataBase:
                 and M1.act_id != M2.act_id
                     and M1.act_id = {act_id}
         """
+        self.cursor = self.conn.cursor()
         bacons = []
         allids = set()
         bacons.append([act_id])
@@ -250,9 +284,8 @@ class MyDataBase:
                     if rec.act_id not in allids :
                         bacons[i+1].append(rec.act_id)
                         allids.add(rec.act_id)
-        print(bacons)
+        self.conn.commit()
         return bacons
-
 
     def baconNumberSeries(self,act_id,bacon_no):
         Query = """ select distinct M2.act_id
@@ -261,6 +294,7 @@ class MyDataBase:
                 and M1.act_id != M2.act_id
                     and M1.act_id = {act_id}
         """
+        self.cursor = self.conn.cursor()
         bacons = []
         allids = set()
         bacons.append([act_id])
@@ -272,7 +306,7 @@ class MyDataBase:
                     if rec.act_id not in allids :
                         bacons[i+1].append(rec.act_id)
                         allids.add(rec.act_id)
-        print(bacons)
+        self.conn.commit()
         return bacons
 
     # with niloufar : 
@@ -280,6 +314,7 @@ class MyDataBase:
         '''
             returns most played actor and least played
         '''
+        self.cursor = self.conn.cursor()
         most_active = """with table1(act_id , mov_id , rol) as (									
                 (select * 
                 from moviescast) 
@@ -312,6 +347,7 @@ class MyDataBase:
         res.append(cur.fetchall())
         cur = self.cursor.execute(least_active)
         res.append(cur.fetchall())
+        self.conn.commit()
         return res
 
     def getTwoCommonActors(self):
@@ -333,7 +369,9 @@ class MyDataBase:
             from t
             where cnt_rows >= 2
         """
+        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(MQ)
+        self.conn.commit()
         return cur
 
     def runQuery(self,rawquery,tablename):

@@ -62,22 +62,17 @@ def returnGenres():
 
 
 
-@app.route('/actid/<act_id>/bacon/<number>/sermov/<sermov>', methods=['GET'])
-def bacon(number,act_id,sermov):
-    if sermov == 'M' :
-        bacons = db.baconNumberMovies(act_id,number)
-        return jsonify({
-            'bacons' : bacons
-        })
-    elif sermov == 'S' :
-        bacons = db.baconNumberSeries(act_id,number)
-        return jsonify({
-            'bacons' : bacons
-        })
-    else :
-        return jsonify({
-            'err' : "not acceptable data "
-        })
+@app.route('/actid/<act_id>/bacon/<number>', methods=['GET'])
+def bacon(number,act_id):
+    bacons = db.baconNumberMovies(act_id,int(number))
+    return jsonify({
+        'bacons' : bacons
+    })
+    # elif sermov == 'S' :
+    #     bacons = db.baconNumberSeries(act_id,number)
+    #     return jsonify({
+    #         'bacons' : bacons
+    #     })
 
 @app.route("/genre/<genre>",  methods=['GET'])
 def returnAllWithGenre(genre):
@@ -202,6 +197,21 @@ def newGenre(genre):
                 'status' : 406,
                 'err' : str(e)
         })
+
+@app.route("/delgenre/<genre>",  methods=['GET'])
+def delGenre(genre):
+    try:
+        res = db.adminDeleteGenre(genre)
+        return jsonify({
+                'msg' : "genre deleted correctly!!",
+            })
+    except Exception as e:
+        return jsonify({
+                'msg' : "didn't delete!!!?!?!?",
+                'status' : 406,
+                'err' : str(e)
+        })
+
 
 @app.route("/acception",  methods=['POST'])
 def acception():
