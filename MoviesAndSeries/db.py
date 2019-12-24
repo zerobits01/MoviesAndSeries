@@ -28,27 +28,26 @@ class MyDataBase:
         self.DELETE_QUERY = 'DELETE from {tblname}'
 
     def getMovies(self):
-        self.cursor = self.conn.cursor()
         cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='movies'))
-        self.conn.commit()
+        ##self.conn.commit()
         return cur
 
     def getGenres(self):
         self.cursor = self.conn.cursor()
         cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='genres'))
-        self.conn.commit()
+        ##self.conn.commit()
         return cur
 
     def getSeries(self):
         self.cursor = self.conn.cursor()
         cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='series'))
-        self.conn.commit() 
+        #self.conn.commit() 
         return cur
         
     def getActors(self):
         self.cursor = self.conn.cursor()
         cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='actors'))
-        self.conn.commit()
+        #self.conn.commit()
         return cur
         
     def getMoviesWithGenre(self,genrename):
@@ -64,7 +63,7 @@ class MyDataBase:
             where G.gen_title like '{genre}'  or G.gen_title like '{genre1}'
         """
         movies = self.cursor.execute(MQ.format(genre=genrename, genre1=genrename.capitalize()))
-        self.conn.commit()
+        #self.conn.commit()
         return movies
 
     def getSeriesWithGenre(self,genrename):
@@ -81,7 +80,7 @@ class MyDataBase:
 
         """
         series = self.cursor.execute(SQ.format(genre=genrename,genre1=genrename.capitalize()))
-        self.conn.commit()
+        #self.conn.commit()
         return series
 
     def getMoviesWithNameAndYear(self,fname,lname,year):
@@ -97,7 +96,7 @@ class MyDataBase:
         """
         self.cursor = self.conn.cursor()
         cur = self.cursor.execute(MQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
-        self.conn.commit()
+        #self.conn.commit()
         return cur
 
     def getSeriesWithNameAndYear(self,fname,lname,year):
@@ -113,7 +112,7 @@ class MyDataBase:
         """
         self.cursor = self.conn.cursor()
         cur = self.cursor.execute(SQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
-        self.conn.commit()
+        #self.conn.commit()
         return cur
 
     def adminAddNewGenre(self,genre):
@@ -129,9 +128,7 @@ class MyDataBase:
         return cur
 
     def adminDeleteGenre(self,genre):
-        '''
-            insertion query adding new genre
-        '''
+        
         GQ = """ DELETE from genres
             where gen_title='{genre1}' or gen_title='{genre2}'
         """
@@ -170,7 +167,7 @@ class MyDataBase:
         """
         self.cursor = self.conn.cursor()
         cur = self.cursor.execute(SQ)
-        self.conn.commit()
+        #self.conn.commit()
         return cur
 
     def acceptComment(self, sermov, revid, id):
@@ -200,7 +197,7 @@ class MyDataBase:
             """
             cur = self.cursor.execute(MQ.format(movid=id,revid=revid))
             res.append(cur)
-        self.conn.commit()
+        #self.conn.commit()
         return res
 
     def addOrGetRev(self,rev_uname):
@@ -280,7 +277,7 @@ class MyDataBase:
         """
         self.cursor = self.conn.cursor()
         res = self.cursor.execute(Query.format(year=year))
-        self.conn.commit()
+        #self.conn.commit()
         return res
 
     def baconNumberMovies(self,act_id,bacon_no):
@@ -302,7 +299,7 @@ class MyDataBase:
                     if rec.act_id not in allids :
                         bacons[i+1].append(rec.act_id)
                         allids.add(rec.act_id)
-        self.conn.commit()
+        #self.conn.commit()
         return bacons
 
     def baconNumberSeries(self,act_id,bacon_no):
@@ -324,7 +321,7 @@ class MyDataBase:
                     if rec.act_id not in allids :
                         bacons[i+1].append(rec.act_id)
                         allids.add(rec.act_id)
-        self.conn.commit()
+        #self.conn.commit()
         return bacons
 
     # with niloufar : 
@@ -365,7 +362,7 @@ class MyDataBase:
         res.append(cur.fetchall())
         cur = self.cursor.execute(least_active)
         res.append(cur.fetchall())
-        self.conn.commit()
+        #self.conn.commit()
         return res
 
     def getTwoCommonActors(self):
@@ -389,7 +386,7 @@ class MyDataBase:
         """
         self.cursor = self.conn.cursor()
         cur = self.cursor.execute(MQ)
-        self.conn.commit()
+        #self.conn.commit()
         return cur
 
     def runQuery(self,rawquery,tablename):
