@@ -80,7 +80,7 @@ class MyDataBase:
 
         """
         series = self.cursor.execute(SQ.format(genre=genrename,genre1=genrename.capitalize()))
-        #self.conn.commit()
+        self.conn.commit()
         return series
 
     def getMoviesWithNameAndYear(self,fname,lname,year):
