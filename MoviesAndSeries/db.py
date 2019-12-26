@@ -161,8 +161,10 @@ class MyDataBase:
                 else delete that
         '''
         SQ = """ SELECT *
-            from seriesrate S1 join series S2
-                on S1.ser_id = S2.ser_id
+            from (seriesrate S1 join series S2
+                on S1.ser_id = S2.ser_id)
+                    join reviewers r
+                        on r.rev_id = S1.rev_id
             where S1.accepted = 0
         """
         self.cursor = self.conn.cursor()
@@ -226,6 +228,7 @@ class MyDataBase:
             adding this to new table temp till the admin accept it or reject
         '''
         res = []
+        sermov = 'S'
         revid = self.addOrGetRev(rev_uname)
         if sermov == 'S' :
             SQ = """ INSERT into seriesrate(rev_id,ser_id,rate,comment)
@@ -411,6 +414,7 @@ class MyDataBase:
 '''
 
 # mydb = MyDataBase()
+# mydb.rateAndComment('S','test_uname',10,4.6,'something as comment')
 # print(mydb.addOrGetRev('name'))
 # mydb.baconNumberMovies(42,3)
 # mydb.baconNumberSeries(1,3)

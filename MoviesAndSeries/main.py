@@ -161,18 +161,19 @@ def rate():
 
 @app.route("/unaccepted", methods=['GET'])
 def getUnaccepted():
-    movies = db.getListOfUnacceptedCommentsMovies()
-    movies = [{
-        'rev_id' : r.rev_id,
-        'mov_id' : r.mov_id,
-        'rate' : r.rate,
-        'accepted' : r.accepted,
-        'comment' : r.comment,
-    } for r in movies]
+    # movies = db.getListOfUnacceptedCommentsMovies()
+    # movies = [{
+    #     'rev_id' : r.rev_id,
+    #     'mov_id' : r.mov_id,
+    #     'rate' : r.rate,
+    #     'accepted' : r.accepted,
+    #     'comment' : r.comment,
+    # } for r in movies]
     
     series = db.getListOfUnacceptedCommentsSeries()
     series = [{
         'rev_id' : r.rev_id,
+        'rev_uname' : r.rev_uname,
         'ser_id' : r.ser_id,
         'rate' : r.rate,
         'accepted' : r.accepted,
@@ -180,7 +181,7 @@ def getUnaccepted():
     } for r in series]
 
     return jsonify({
-        'movies' : movies,
+        # 'movies' : movies,
         'series' : series
     })
 
