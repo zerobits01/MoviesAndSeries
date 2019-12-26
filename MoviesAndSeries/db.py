@@ -80,7 +80,7 @@ class MyDataBase:
 
         """
         series = self.cursor.execute(SQ.format(genre=genrename,genre1=genrename.capitalize()))
-        self.conn.commit()
+        # self.conn.commit()
         return series
 
     def getMoviesWithNameAndYear(self,fname,lname,year):
@@ -421,7 +421,7 @@ class MyDataBase:
 '''
 
 # mydb = MyDataBase()
-# mydb.rateAndComment('S','test_uname',10,4.6,'something as comment')
+# mydb.rateAndComment('S','test_uname1',10,4.6,'something as comment')
 # print(mydb.addOrGetRev('name'))
 # mydb.baconNumberMovies(42,3)
 # mydb.baconNumberSeries(1,3)
