@@ -18,8 +18,9 @@ class MyDataBase:
         self.conn = pyodbc.connect('Driver={SQL Server};'
                                    'Server=localhost;'
                                    'Database=MoviesAndSeries;'
-                                   'Trusted_Connection=yes;')
-        self.cursor = self.conn.cursor()
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes',autocommit=True)
+        cursor = self.conn.cursor()
         # predefined queries
 
         # retrieving a table data
@@ -28,33 +29,71 @@ class MyDataBase:
         self.DELETE_QUERY = 'DELETE from {tblname}'
 
     def getMovies(self):
-        cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='movies'))
+        SELECT_QUERY = 'SELECT * FROM {tblname}'
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes',autocommit=True)
+        cursor = conn.cursor()
+        cur = cursor.execute(SELECT_QUERY.format(tblname='movies'))
         ##self.conn.commit()
+        #conn.close()
         return cur
 
     def getGenres(self):
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='genres'))
-        ##self.conn.commit()
+        SELECT_QUERY = 'SELECT * FROM {tblname}'
+        conn = pyodbc.connect('Driver={SQL Server};'
+                            'Server=localhost;'
+                            'Database=MoviesAndSeries;'
+                            'Trusted_Connection=yes;'
+                            'MARS_Connection=Yes')
+        cursor = conn.cursor()
+        cursor = conn.cursor()
+        cur = cursor.execute(SELECT_QUERY.format(tblname='genres'))
+        # c.commit()
+        #conn.close()
         return cur
 
     def getSeries(self):
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='series'))
-        #self.conn.commit() 
+        SELECT_QUERY = 'SELECT * FROM {tblname}'
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()
+        cursor = conn.cursor()
+        cur = cursor.execute(SELECT_QUERY.format(tblname='series'))
+        #conn.close()
+        # self.conn.commit() 
         return cur
         
     def getActors(self):
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(self.SELECT_QUERY.format(tblname='actors'))
+        SELECT_QUERY = 'SELECT * FROM {tblname}'
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
+        cursor = conn.cursor()
+        cur = cursor.execute(SELECT_QUERY.format(tblname='actors'))
         #self.conn.commit()
+        #conn.close()
         return cur
         
     def getMoviesWithGenre(self,genrename):
         '''
             TODO : get all movies and series with genre of genrename
         '''
-        self.cursor = self.conn.cursor()
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
+        cursor = conn.cursor()
         MQ = """ SELECT *
             from movies M1 join moviesgen M2
                 on M1.mov_id = M2.mov_id
@@ -62,15 +101,22 @@ class MyDataBase:
                         on G.gen_id = M2.gen_id
             where G.gen_title like '{genre}'  or G.gen_title like '{genre1}'
         """
-        movies = self.cursor.execute(MQ.format(genre=genrename, genre1=genrename.capitalize()))
+        movies = cursor.execute(MQ.format(genre=genrename, genre1=genrename.capitalize()))
         #self.conn.commit()
+        #conn.close()
         return movies
 
     def getSeriesWithGenre(self,genrename):
         '''
             TODO : get all movies and series with genre of genrename
         '''
-        self.cursor = self.conn.cursor()
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()
+        cursor = conn.cursor()
         SQ = """ SELECT *
             from series M1 join seriesgen M2
                 on M1.ser_id = M2.ser_id
@@ -79,7 +125,8 @@ class MyDataBase:
             where G.gen_title like '{genre}' or G.gen_title like '{genre1}' 
 
         """
-        series = self.cursor.execute(SQ.format(genre=genrename,genre1=genrename.capitalize()))
+        series = cursor.execute(SQ.format(genre=genrename,genre1=genrename.capitalize()))
+        #conn.close()
         # self.conn.commit()
         return series
 
@@ -87,6 +134,12 @@ class MyDataBase:
         '''
             TODO : returns all movies and series of the actor(fname,lname) and the year
         '''
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()
         MQ = """ SELECT *
             from actors A join moviescast MC
                 on A.act_id = MC.act_id
@@ -94,9 +147,10 @@ class MyDataBase:
                         on MC.mov_id = M.mov_id
             where A.act_fname = '{fname}' and A.act_lname = '{lname}' and YEAR(M.mov_year) = '{year}'
         """
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(MQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
+        cursor = conn.cursor()
+        cur = cursor.execute(MQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
         #self.conn.commit()
+        #conn.close()
         return cur
 
     def getSeriesWithNameAndYear(self,fname,lname,year):
@@ -110,21 +164,35 @@ class MyDataBase:
                         on SC.ser_id = S.ser_id
             where A.act_fname = '{fname}' and A.act_lname = '{lname}' and YEAR(S.ser_year) = '{year}'
         """
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(SQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()
+        cursor = conn.cursor()
+        cur = cursor.execute(SQ.format(fname=fname.capitalize(),lname=lname.capitalize(),year=year))
         #self.conn.commit()
+        #conn.close()
         return cur
 
     def adminAddNewGenre(self,genre):
         '''
             insertion query adding new genre
         '''
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
         GQ = """ INSERT INTO genres(gen_title)
             values('{gen_title}')
         """
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(GQ.format(gen_title=genre))
-        self.conn.commit()
+        cursor = conn.cursor()
+        cur = cursor.execute(GQ.format(gen_title=genre))
+        conn.commit()
+        #conn.close()
         return cur
 
     def adminDeleteGenre(self,genre):
@@ -132,9 +200,16 @@ class MyDataBase:
         GQ = """ DELETE from genres
             where gen_title='{genre1}' or gen_title='{genre2}'
         """
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(GQ.format(genre1=genre,genre2=genre.capitalize()))
-        self.conn.commit()
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
+        cursor = conn.cursor()
+        cur = cursor.execute(GQ.format(genre1=genre,genre2=genre.capitalize()))
+        conn.commit()
+        #conn.close()
         return cur
 
     def getListOfUnacceptedCommentsMovies(self):
@@ -148,9 +223,16 @@ class MyDataBase:
                 on M1.mov_id = M2.mov_id
             where M1.accepted = 0
         """
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(MQ)
-        self.conn.commit()
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
+        cursor = conn.cursor()
+        cur = cursor.execute(MQ)
+        conn.commit()
+        #conn.close()
         return cur
 
 
@@ -167,17 +249,30 @@ class MyDataBase:
                         on r.rev_id = S1.rev_id
             where S1.accepted = 0
         """
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(SQ)
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
+        cursor = conn.cursor()
+        cur = cursor.execute(SQ)
         #self.conn.commit()
+        #conn.close()
         return cur
 
     def acceptComment(self, sermov, revid, id):
         ''' 
             TODO : accept the comment
         '''
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()
         res = []
-        self.cursor = self.conn.cursor()
+        cursor = conn.cursor()
         if sermov == 'S' :
             SQ = """ UPDATE seriesrate
                 set accepted = 1
@@ -187,7 +282,7 @@ class MyDataBase:
                     set reviewers = reviewers + 1
                 where ser_id = {serid}
             """
-            cur = self.cursor.execute(SQ.format(revid=revid,serid=id))
+            cur = cursor.execute(SQ.format(revid=revid,serid=id))
             res.append(cur)
         elif sermov == 'M'  : 
             MQ = """ UPDATE moviesrate
@@ -197,9 +292,10 @@ class MyDataBase:
                     set reviewers = reviewers + 1
                 where ser_id = {movid}
             """
-            cur = self.cursor.execute(MQ.format(movid=id,revid=revid))
+            cur = cursor.execute(MQ.format(movid=id,revid=revid))
             res.append(cur)
         #self.conn.commit()
+        #conn.close()
         return res
 
     def addOrGetRev(self,rev_uname):
@@ -207,17 +303,24 @@ class MyDataBase:
             from reviewers
             where rev_uname='{uname}'
         """
-        cur = self.cursor.execute(Q1.format(uname=rev_uname))
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
+        cur = cursor.execute(Q1.format(uname=rev_uname))
         user = cur.fetchone()
         
         Q2 = """ INSERT into reviewers
             values('{uname}')
         """
         if user is None: 
-            cur = self.cursor.execute(Q2.format(uname=rev_uname))
-            cur = self.cursor.execute(Q1.format(uname=rev_uname))
+            cur = cursor.execute(Q2.format(uname=rev_uname))
+            cur = cursor.execute(Q1.format(uname=rev_uname))
             user = cur.fetchone()
-        self.conn.commit()
+        conn.commit()
+        #conn.close()
         return user[0]
 
     def rateAndComment(self,sermov,rev_uname,id,rate,comment):
@@ -227,6 +330,12 @@ class MyDataBase:
             rate and comment
             adding this to new table temp till the admin accept it or reject
         '''
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
         res = []
         sermov = 'S'
         revid = self.addOrGetRev(rev_uname)
@@ -234,15 +343,16 @@ class MyDataBase:
             SQ = """ INSERT into seriesrate(rev_id,ser_id,rate,comment)
                         values({revid},{serid},{rate},'{comment}')
             """
-            cur = self.cursor.execute(SQ.format(revid=revid,serid=id,rate=rate,comment=comment))
+            cur = cursor.execute(SQ.format(revid=revid,serid=id,rate=rate,comment=comment))
             res.append(cur)
         elif sermov == 'M'  : 
             MQ = """ INSERT into moviesrate(rev_id,mov_id,rate,comment)
                         values({revid},{movid},{rate},'{comment}')
             """
-            cur = self.cursor.execute(MQ.format(movid=id,revid=revid,rate=rate,comment=comment))
+            cur = cursor.execute(MQ.format(movid=id,revid=revid,rate=rate,comment=comment))
             res.append(cur)
-        self.conn.commit()
+        conn.commit()
+        #conn.close()
         return res
 
     def getSameGenre_M_S_WithYear(self,year):
@@ -278,9 +388,16 @@ class MyDataBase:
             where YEAR(TM.mov_year) = '{year}' and TM.mov_year = TS.ser_year
                 and TM.mov_act = TS.ser_act
         """
-        self.cursor = self.conn.cursor()
-        res = self.cursor.execute(Query.format(year=year))
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
+        cursor = conn.cursor()
+        res = cursor.execute(Query.format(year=year))
         #self.conn.commit()
+        #conn.close()
         return res
 
     def baconNumberMovies(self,act_id,bacon_no):
@@ -292,7 +409,13 @@ class MyDataBase:
                 and M1.act_id != M2.act_id
                     and M1.act_id = {act_id}
         """
-        self.cursor = self.conn.cursor()
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()
+        cursor = conn.cursor()
         bacons = []
         bacons_names = []
         allids = set()
@@ -303,12 +426,12 @@ class MyDataBase:
             bacons.append([])
             bacons_names.append([])
             for act_id in bacons[i]:
-                for rec in self.cursor.execute(Query.format(act_id=act_id)):
+                for rec in cursor.execute(Query.format(act_id=act_id)):
                     if rec.act_id not in allids :
                         bacons[i+1].append(rec.act_id)
                         bacons_names[i+1].append(rec.act_fname + ' ' + rec.act_lname)
                         allids.add(rec.act_id)
-                        
+        #conn.close()                
         #self.conn.commit()
         return bacons_names
 
@@ -319,7 +442,13 @@ class MyDataBase:
                 and M1.act_id != M2.act_id
                     and M1.act_id = {act_id}
         """
-        self.cursor = self.conn.cursor()
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()
+        cursor = conn.cursor()
         bacons = []
         allids = set()
         bacons.append([act_id])
@@ -327,11 +456,12 @@ class MyDataBase:
         for i in range(0,bacon_no):
             bacons.append([])
             for act_id in bacons[i]:
-                for rec in self.cursor.execute(Query.format(act_id=act_id)) :
+                for rec in cursor.execute(Query.format(act_id=act_id)) :
                     if rec.act_id not in allids :
                         bacons[i+1].append(rec.act_id)
                         allids.add(rec.act_id)
         #self.conn.commit()
+        #conn.close()
         return bacons
 
     # with niloufar : 
@@ -339,7 +469,13 @@ class MyDataBase:
         '''
             returns most played actor and least played
         '''
-        self.cursor = self.conn.cursor()
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()    
+        cursor = conn.cursor()
         most_active = """with table1(act_id , mov_id , rol) as (									
                 (select * 
                 from moviescast) 
@@ -368,11 +504,12 @@ class MyDataBase:
             order by COUNT(*) , actors.act_lname
         """
         res = []
-        cur = self.cursor.execute(most_active)
+        cur = cursor.execute(most_active)
         res.append(cur.fetchall())
-        cur = self.cursor.execute(least_active)
+        cur = cursor.execute(least_active)
         res.append(cur.fetchall())
         #self.conn.commit()
+        #conn.close()
         return res
 
     def getTwoCommonActors(self):
@@ -394,9 +531,16 @@ class MyDataBase:
             from t
             where cnt_rows >= 2
         """
-        self.cursor = self.conn.cursor()
-        cur = self.cursor.execute(MQ)
+        conn = pyodbc.connect('Driver={SQL Server};'
+                                   'Server=localhost;'
+                                   'Database=MoviesAndSeries;'
+                                   'Trusted_Connection=yes;'
+                                   'MARS_Connection=Yes')
+        cursor = conn.cursor()        
+        cursor = conn.cursor()
+        cur = cursor.execute(MQ)
         #self.conn.commit()
+        #conn.close()
         return cur
 
     def runQuery(self,rawquery,tablename):
@@ -409,9 +553,9 @@ class MyDataBase:
             returns : a list of tuples which is the answer of the query execution
         '''
         if tablename is None:
-            cursor = self.cursor.execute(rawquery)
+            cursor = cursor.execute(rawquery)
         else :
-            cursor = self.cursor.execute(rawquery.format(tblname = tablename))
+            cursor = cursor.execute(rawquery.format(tblname = tablename))
         
         return cursor
     
