@@ -419,9 +419,9 @@ class MyDataBase:
         bacons = []
         bacons_names = []
         allids = set()
+        allids.add(int(act_id))
         bacons.append([act_id])
         bacons_names.append([act_id])
-        allids.add(act_id)
         for i in range(0,bacon_no):
             bacons.append([])
             bacons_names.append([])
