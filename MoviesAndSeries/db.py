@@ -284,26 +284,33 @@ class MyDataBase:
         return res
 
     def baconNumberMovies(self,act_id,bacon_no):
-        Query = """ select distinct M2.act_id
+        Query = """SELECT distinct M2.act_id, A.act_fname, A.act_lname
             from moviescast M1,moviescast M2
+                    join Actors A
+                        on A.act_id = M2.act_id
             where M1.mov_id = M2.mov_id 
                 and M1.act_id != M2.act_id
                     and M1.act_id = {act_id}
         """
         self.cursor = self.conn.cursor()
         bacons = []
+        bacons_names = []
         allids = set()
         bacons.append([act_id])
+        bacons_names.append([act_id])
         allids.add(act_id)
         for i in range(0,bacon_no):
             bacons.append([])
+            bacons_names.append([])
             for act_id in bacons[i]:
-                for rec in self.cursor.execute(Query.format(act_id=act_id)) :
+                for rec in self.cursor.execute(Query.format(act_id=act_id)):
                     if rec.act_id not in allids :
                         bacons[i+1].append(rec.act_id)
+                        bacons_names[i+1].append(rec.act_fname + ' ' + rec.act_lname)
                         allids.add(rec.act_id)
+                        
         #self.conn.commit()
-        return bacons
+        return bacons_names
 
     def baconNumberSeries(self,act_id,bacon_no):
         Query = """ select distinct M2.act_id
