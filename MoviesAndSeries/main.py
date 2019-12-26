@@ -4,21 +4,30 @@
     it is really easy to use flask apps for rendering statics and
         templates. we can use it beside other apps
 '''
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, send_from_directory
 from db import MyDataBase
 from flask_cors import CORS
 db = MyDataBase()
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 
 CORS(app)
 
 
 @app.route('/' , methods=['GET'])
-def render_users():
-    return render_template('users.html')
+def render_index():
+    return render_template('index.html')
 
-@app.route('/admin' , methods=['GET'])
+@app.route('/<path:path>')
+def send_js(path):
+    return send_from_directory('static', path)
+
+@app.route('/user.html' , methods=['GET'])
+def render_user():
+    return render_template('user.html')
+
+
+@app.route('/admin.html' , methods=['GET'])
 def render_admin():
     return render_template('admin.html')
 
